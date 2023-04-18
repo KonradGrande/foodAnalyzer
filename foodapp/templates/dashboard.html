@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">Today you have eaten:</div>
+                </div>
+                <ul class="list-group">
+                    {% for meal in meals %}
+                    <div class="list-group-item list-group-item-light">
+                        <p>{{ meal.amount }} g of {{ meal.food.name }}
+                            <a href="{% url 'meal:delete' meal.id %}">
+                                <button class="btn-danger pull-right">
+                                    Remove
+                                </button>
+                            </a>
+                        </p>
+                    </div>
+                    {% empty %}
+                    <p>No meals registered so far today.</p>
+                    {% endfor %}
+                </ul>
+                <div class="panel-body">
+                    <a href="{% url 'meal:create' %}">
+                        <button class="btn btn-lg btn-success">
+                            Add meal
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">Reaction</div>
+                </div>
+                <div class="panel-body">
+                    {% for reaction in reactions %}
+                    {% if reaction.reaction %}
+                    <p><b>Having a reaction today.</b></p>
+                    {% else %}
+                    <p><b>Not having a reaction today.</b></p>
+                    {% endif %}
+                    {% if reaction.diary %}
+                    <div class="panel-body">
+                        <p>{{ reaction.diary }}</p>
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'reaction:update' reaction.id %}">
+                        <button class="btn btn-lg btn-danger">
+                            Edit Reaction
+                        </button>
+                    </a>
+                    {% empty %}
+                    <div class="panel-body">
+                        <a href="{% url 'reaction:create' %}">
+                            <button class="btn btn-lg btn-success">
+                                Register Reaction
+                            </button>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

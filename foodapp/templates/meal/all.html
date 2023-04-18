@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %} Food Diary {% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <a href="{% url 'meal:create' %}">
+        <button class="btn btn-lg btn-success">
+            Add Meal
+        </button>
+    </a>
+    <br />
+    <br />
+</div>
+<div class="container-fluid">
+    <div class="row">
+        {% for date, meals in daylist %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    {{ date }}
+                </div>
+            </div>
+
+            {% for meal in meals %}
+            <div class="list-group-item list-group-item-light">
+                <p>{{ meal.amount }} g of {{ meal.food.name }}
+                    <a href="{% url 'meal:delete' meal.id %}">
+                        <button class="btn-danger pull-right">
+                            Remove
+                        </button>
+                    </a>
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% empty %}
+        <h3>This project does not have any sprints yet.</h3>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

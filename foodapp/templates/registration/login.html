@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if form.errors %}
+    <p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+        <p>Your account doesn't have access to this page. To proceed,
+            please login with an account that has access.</p>
+    {% else %}
+        <p>Please login to see this page.</p>
+    {% endif %}
+{% endif %}
+<div class="row">
+    <div class="panel panel-primary center-block" style="max-width:400px">
+        <div class="panel-heading">Log In</div>
+        <div class="panel-body">
+            <form method="post" class="form-vertical">
+                {% csrf_token %}
+                <div class="form-group form-group-lg center-block">
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                </div>
+                <div class="form-group form-group-lg center-block">
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+                </div>
+
+                <input type="submit" class="btn btn-primary center-block" value="login">
+                <input type="hidden" name="next" value="{{ next }}">
+                {# need to write a custom view and set up the mail service #}
+                <br />
+                <a href="{% url 'account:password_reset' %}" class="center-block">Lost password?</a>
+            </form>
+        </div>
+  </div>
+</div>
+
+{% endblock %}

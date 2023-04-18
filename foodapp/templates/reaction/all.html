@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %} Reactions {% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <a href="{% url 'reaction:create' %}">
+        <button class="btn btn-lg btn-success">
+            Log Reaction
+        </button>
+    </a>
+    <br />
+    <br />
+</div>
+<div class="container-fluid">
+    <div class="row">
+        {% for reaction in reactions %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+
+                <div class="panel-title">
+                    {{ reaction.date }}
+                </div>
+            </div>
+
+            <div class="panel-body">
+                {% if reaction.reaction %}
+                <p>I did not feel good.</p>
+                {% else %}
+                <p>I felt fine.</p>
+                {% endif %}
+                <!-- <div class="panel-body"> -->
+                <a href="{% url 'reaction:update' reaction.id %}">
+                    <button class="btn btn-sm btn-danger">
+                        Edit Reaction
+                    </button>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <h3>No reactions registered.</h3>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

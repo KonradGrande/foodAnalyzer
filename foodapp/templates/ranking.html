@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %} Ranking {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">Ranking</div>
+                </div>
+                <ul class="list-group">
+                    {% for food, score in ranking %}
+                    <a href="{% url 'history' food.id %}" class="list-group-item list-group-item-light">
+                        <p>{{ food.name }}
+                            <span class="badge pull-right">
+                                {{ score }}
+                            </span>
+                        </p>
+                    </a>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

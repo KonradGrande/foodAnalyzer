@@ -1,0 +1,21 @@
+body {
+  background: #2222;
+  margin: 0; /* Important for header, removes slight gap at top/sides */
+}
+
+.header {
+  background: rgb(34, 34, 34);
+  width: 100%;
+  height: 15%;
+}
+
+.btn {
+  background: none;
+  color: dodgerblue;
+  height: 35px;
+  padding: 0 10px;
+  margin-left: 10px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
