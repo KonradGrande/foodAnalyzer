@@ -72,12 +72,81 @@ reaction_urls = (
     "reaction",
 )
 
+ingredient_urls = (
+    [
+        path("create/", views.IngredientCreateView.as_view(), name="create"),
+        path(
+            "update/<int:pk>",
+            views.IngredientUpdateView.as_view(),
+            name="update",
+        ),
+        path(
+            "delete/<int:pk>",
+            views.IngredientDeleteView.as_view(),
+            name="delete",
+        ),
+        path(
+            "detail/<int:pk>",
+            views.IngredientDetailView.as_view(),
+            name="detail",
+        ),
+        path("list/", views.IngredientListView.as_view(), name="list"),
+    ],
+    "ingredient",
+)
+
+ingredient_recipe_urls = (
+    [
+        path(
+            "create/",
+            views.IngredientRecipeCreateView.as_view(),
+            name="create",
+        ),
+        path(
+            "delete/<int:pk>",
+            views.IngredientRecipeDeleteView.as_view(),
+            name="delete",
+        ),
+        path(
+            "update/<int:pk>",
+            views.IngredientRecipeUpdateView.as_view(),
+            name="update",
+        ),
+    ],
+    "ingredients",
+)
+
+recipe_urls = (
+    [
+        path("create/", views.RecipeCreateView.as_view(), name="create"),
+        path(
+            "update/<int:pk>", views.RecipeUpdateView.as_view(), name="update"
+        ),
+        path(
+            "delete/<int:pk>",
+            views.RecipeDeleteView.as_view(),
+            name="delete",
+        ),
+        path(
+            "detail/<int:pk>",
+            views.RecipeDetailView.as_view(),
+            name="detail",
+        ),
+        path("list/", views.RecipeListView.as_view(), name="list"),
+        path("<int:recipe_pk>/ingredients/", include(ingredient_recipe_urls)),
+    ],
+    "recipe",
+)
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include(account_urls)),
     path("", views.DashboardView.as_view(), name="dashboard"),
     path("meal/", include(meal_urls)),
     path("reaction/", include(reaction_urls)),
+    path("ingredient/", include(ingredient_urls)),
+    path("recipe/", include(recipe_urls)),
     path("ranking/", views.RankingView.as_view(), name="ranking"),
     path(
         "food/history/<int:pk>",

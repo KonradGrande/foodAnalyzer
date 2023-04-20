@@ -2,36 +2,34 @@
 {% block title %} History {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        {% for date, meals, reaction in daylist %}
-        <div class="col-sm-4">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">{{ date }}</div>
-                </div>
-                {% if reaction %}
-                <div class="panel-body">
-                    {% if reaction.reaction %}
-                    <p><b>Had reaction.</b></p>
-                    {% else %}
-                    <p><b>No reaction.</b></p>
-                    {% endif %}
-                    {% if reaction.diary %}
-                    <p>{{ reaction.diary }}</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-                <ul class="list-group">
-                    {% for meal in meals %}
-                    <div class="list-group-item list-group-item-light">
-                        <p>{{ meal.amount }} g of {{ meal.food.name }}
-                    </div>
-                    {% endfor %}
-                </ul>
-            </div>
+<div class="row">
+    {% for date, meals, reaction in daylist %}
+    <!-- <div class="col-sm-4"> -->
+    <div class="panel panel-primary center-block" style="max-width:600px">
+        <div class="panel-heading">
+            <div class="panel-title">{{ date }}</div>
         </div>
-        {% endfor %}
+        {% if reaction %}
+        <div class="panel-body">
+            {% if reaction.reaction %}
+            <p><b>Had reaction.</b></p>
+            {% else %}
+            <p><b>No reaction.</b></p>
+            {% endif %}
+            {% if reaction.diary %}
+            <p>{{ reaction.diary }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        <ul class="list-group">
+            {% for meal in meals %}
+            <div class="list-group-item list-group-item-light">
+                <p>{{ meal.amount }} g of {{ meal.ingredient.name }}
+            </div>
+            {% endfor %}
+        </ul>
     </div>
+    <!-- </div> -->
+    {% endfor %}
 </div>
 {% endblock %}

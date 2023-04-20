@@ -1,10 +1,10 @@
 {% extends "base_single_panel.html" %}
-{% block title %} Remove logged meal {% endblock %}
-{% block panel_title %} Remove logged meal {% endblock %}
+{% block title %} Remove ingredient {% endblock %}
+{% block panel_title %} Remove ingredient {% endblock %}
 {% block panel_body %}
 <form method="post" class="form-vertical">
     {% csrf_token %}
-    <p>Are you sure you want to remove the meal consisting of {{object.amount}}g of {{ object.ingredient.name }}?</p>
+    <p>Are you sure you want to remove {{ object.name }}?</p>
 
     <input type="submit" class="btn btn-primary center-block" value="Confirm">
 </form>

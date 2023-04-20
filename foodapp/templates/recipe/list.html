@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %} List of all recipe {% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="text-center">
+        <a href="{% url 'recipe:create' %}">
+            <button class="btn btn-lg btn-success">
+                Add a new recipe
+            </button>
+        </a>
+        <br />
+        <br />
+    </div>
+    {% for recipe in object_list %}
+    <div class="panel panel-primary center-block" style="max-width:600px">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <a href="{% url 'recipe:detail' recipe.id %}">
+                    {{ recipe.name }}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

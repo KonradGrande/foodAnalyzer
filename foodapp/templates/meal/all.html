@@ -23,7 +23,7 @@
 
             {% for meal in meals %}
             <div class="list-group-item list-group-item-light">
-                <p>{{ meal.amount }} g of {{ meal.food.name }}
+                <p>{{ meal.amount }} g of {{ meal.ingredient.name }}
                     <a href="{% url 'meal:delete' meal.id %}">
                         <button class="btn-danger pull-right">
                             Remove
@@ -34,7 +34,7 @@
             {% endfor %}
         </div>
         {% empty %}
-        <h3>This project does not have any sprints yet.</h3>
+        <h3>No meals registered yet.</h3>
         {% endfor %}
     </div>
 </div>

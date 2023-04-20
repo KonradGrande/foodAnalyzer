@@ -1,6 +1,5 @@
 from django.utils import timezone
-from django.shortcuts import render
-from .models import Food, Meal, Reaction
+from .models import Ingredient, Recipe, IngredientRecipe, Meal, Reaction
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import TemplateView, ListView
 from django.views.generic.detail import DetailView
@@ -48,7 +47,7 @@ class MealCreateView(LoginRequiredMixin, CreateView):
     model = Meal
     fields = [
         "date",
-        "food",
+        "ingredient",
         "amount",
     ]
 
@@ -150,8 +149,8 @@ class RankingView(LoginRequiredMixin, TemplateView):
         reactions = Reaction.objects.filter(user=user).order_by("-date")
 
         # id of the food
-        food_eaten = meals.values_list("food", flat=True).distinct()
-        food_eaten = [Food.objects.get(id=id) for id in food_eaten]
+        food_eaten = meals.values_list("ingredient", flat=True).distinct()
+        food_eaten = [Ingredient.objects.get(id=id) for id in food_eaten]
 
         foods = dict([(food, 0) for food in food_eaten])
 
@@ -159,13 +158,13 @@ class RankingView(LoginRequiredMixin, TemplateView):
             day_before = reaction.date - timedelta(days=1)
             relevant_meals = meals.filter(
                 date__range=[day_before, reaction.date]
-            )  # should be extended to include day before
+            )
             if reaction.reaction:
                 for meal in relevant_meals:
-                    foods[meal.food] += 1
+                    foods[meal.ingredient] += 1
             else:
                 for meal in relevant_meals:
-                    foods[meal.food] = 0
+                    foods[meal.ingredient] = 0
         ranking = []
         for food, rank in foods.items():
             if rank != 0:
@@ -180,14 +179,16 @@ class FoodHistoryView(LoginRequiredMixin, DetailView):
     template_name = "food/history.html"
 
     def get_queryset(self):
-        return Food.objects.filter(id=self.kwargs["pk"])
+        return Ingredient.objects.filter(id=self.kwargs["pk"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user
-        food = self.kwargs["pk"]
-        meals = Meal.objects.filter(user=user, food=food).order_by("-date")
+        ingredient = self.kwargs["pk"]
+        meals = Meal.objects.filter(
+            user=user, ingredient=ingredient
+        ).order_by("-date")
         reactions = Reaction.objects.filter(user=user).order_by("-date")
 
         days = {}
@@ -219,3 +220,115 @@ class FoodHistoryView(LoginRequiredMixin, DetailView):
 
         context["daylist"] = daylist
         return context
+
+
+class IngredientCreateView(LoginRequiredMixin, CreateView):
+    template_name = "ingredient/create.html"
+    model = Ingredient
+    fields = [
+        "name",
+        "lactose",
+        "gluten",
+    ]
+
+
+class IngredientUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "ingredient/update.html"
+    model = Ingredient
+    fields = [
+        "name",
+        "lactose",
+        "gluten",
+    ]
+
+
+class IngredientDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "ingredient/delete.html"
+    model = Ingredient
+
+    def get_success_url(self):
+        return reverse("ingredient:list")
+
+
+class IngredientListView(LoginRequiredMixin, ListView):
+    template_name = "ingredient/list.html"
+    model = Ingredient
+
+
+class IngredientDetailView(LoginRequiredMixin, DetailView):
+    template_name = "ingredient/detail.html"
+    model = Ingredient
+
+
+class RecipeCreateView(LoginRequiredMixin, CreateView):
+    template_name = "recipe/create.html"
+    model = Recipe
+    fields = ["name"]
+
+
+class RecipeUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "recipe/update.html"
+    model = Recipe
+    fields = ["name"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        recipe = Recipe.objects.get(id=self.kwargs["pk"])
+        ingredients = IngredientRecipe.objects.filter(recipe=recipe.id)
+        context["recipe"] = recipe
+        context["ingredients"] = ingredients
+        return context
+
+
+class RecipeDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "recipe/delete.html"
+    model = Recipe
+
+    def get_success_url(self):
+        return reverse("recipe:list")
+
+
+class RecipeListView(LoginRequiredMixin, ListView):
+    template_name = "recipe/list.html"
+    model = Recipe
+
+
+class RecipeDetailView(LoginRequiredMixin, DetailView):
+    template_name = "recipe/detail.html"
+    model = Recipe
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        recipe = Recipe.objects.get(id=self.kwargs["pk"])
+        ingredients = IngredientRecipe.objects.filter(recipe=recipe.id)
+        context["recipe"] = recipe
+        context["ingredients"] = ingredients
+        return context
+
+
+class IngredientRecipeCreateView(LoginRequiredMixin, CreateView):
+    template_name = "ingredient_recipe/create.html"
+    model = IngredientRecipe
+    fields = ["ingredient", "amount"]
+
+    def form_valid(self, form):
+        form.instance.recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
+        return super().form_valid(form)
+
+
+class IngredientRecipeUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "ingredient_recipe/create.html"
+    model = IngredientRecipe
+    fields = ["ingredient", "amount"]
+
+
+class IngredientRecipeDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "ingredient_recipe/delete.html"
+    model = IngredientRecipe
+
+    def get_success_url(self):
+        return reverse(
+            "recipe:update", kwargs={"pk": self.kwargs["recipe_pk"]}
+        )

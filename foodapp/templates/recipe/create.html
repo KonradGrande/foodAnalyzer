@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %} Add recipe {% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="panel panel-primary center-block" style="max-width:600px">
+        <div class="panel-heading">
+            <div class="panel-title">Add recipe</div>
+        </div>
+        <div class="panel-body">
+            <form method="post" class="form-vertical">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group form-group-lg center-block">
+                    <h4>{{ field.label_tag }}</h4>
+                    {{ field.errors }}
+                    {{ field }}
+                </div>
+                {% endfor %}
+
+                <input type="submit" class="btn btn-primary center-block" value="Confirm">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
