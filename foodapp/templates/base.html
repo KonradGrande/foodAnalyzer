@@ -20,69 +20,79 @@
                             <img src="{% static 'logo2.png' %}" alt="logo" style="height:35px;padding-top:10px;">
                         </a> -->
             <div class="navbar-header">
-                <a class="navbar-brand" href="">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{% url 'dashboard' %}">
                     FoodAnalyser
                 </a>
             </div>
             {% if user.is_authenticated %}
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href="{% url 'dashboard' %}">
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'meal:all' %}">
-                        Food Diary
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'reaction:all' %}">
-                        Reactions
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'ranking' %}">
-                        Ranking
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'ingredient:list' %}">Ingredients</a>
-                </li>
-                <li>
-                    <a href="{% url 'recipe:list' %}">
-                        Recipes
-                    </a>
-                </li>
-            </ul>
-            {% endif %}
-            <!-- add a log in/out button on the right side of the bar -->
-            <ul class="nav navbar-nav navbar-right">
-                {% if user.is_authenticated %}
-                <li style="pointer-events:none;">
-                    <a>Logged in as <span style="color:cadetblue;">{{ user }}</span></a>
-                </li>
-                <li>
-                    <a href="{% url 'account:logout' %}">
-                        <span class="glyphicon glyphicon-log-out"></span>
-                        Log out
-                    </a>
-                </li>
-                {% else %}
-                <li>
-                    <a href="{% url 'account:signup' %}">
-                        <span class="glyphicon glyphicon-user"></span>
-                        Sign Up
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'account:login' %}">
-                        <span class="glyphicon glyphicon-log-in"></span>
-                        Log in
-                    </a>
-                </li>
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="{% url 'dashboard' %}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'meal:all' %}">
+                            Food Diary
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'reaction:all' %}">
+                            Reactions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'ranking' %}">
+                            Ranking
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'ingredient:list' %}">Ingredients</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'recipe:list' %}">
+                            Recipes
+                        </a>
+                    </li>
+                </ul>
                 {% endif %}
-            </ul>
+                <!-- add a log in/out button on the right side of the bar -->
+                <ul class="nav navbar-nav navbar-right">
+                    {% if user.is_authenticated %}
+                    <li style="pointer-events:none;">
+                        <a>Logged in as <span style="color:cadetblue;">{{ user }}</span></a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account:logout' %}">
+                            <span class="glyphicon glyphicon-log-out"></span>
+                            Log out
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="{% url 'account:signup' %}">
+                            <span class="glyphicon glyphicon-user"></span>
+                            Sign Up
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account:login' %}">
+                            <span class="glyphicon glyphicon-log-in"></span>
+                            Log in
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </nav>
 
