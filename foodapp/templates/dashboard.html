@@ -2,29 +2,29 @@
 {% block title %} Dashboard {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container">
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">Today you have eaten:</div>
                 </div>
                 <div class="panel-body">
+                    {% if meals %}
                     <ul class="list-group">
                         {% for meal in meals %}
                         <div class="list-group-item list-group-item-light">
-                            <p>{{ meal.amount }} g of {{ meal.ingredient.name }}
-                                <a href="{% url 'meal:delete' meal.id %}">
-                                    <button class="btn-danger pull-right">
-                                        Remove
-                                    </button>
+                            <p>{{ meal.amount }} g of {{ meal.food.name }}
+                                <a class="pull-right" href="{% url 'meal:delete' meal.id %}">
+                                    <span class="glyphicon glyphicon-trash"></span>
                                 </a>
                             </p>
                         </div>
-                        {% empty %}
-                        <p>No meals registered so far today.</p>
                         {% endfor %}
                     </ul>
+                    {% else %}
+                    <p>No meals registered so far today.</p>
+                    {% endif %}
                     <a href="{% url 'meal:create' %}">
                         <button class="btn btn-lg btn-success">
                             Add meal
@@ -33,39 +33,50 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">Reaction</div>
-                </div>
-                <div class="panel-body">
-                    {% for reaction in reactions %}
-                    {% if reaction.reaction %}
-                    <p><b>Having a reaction today.</b></p>
-                    {% else %}
-                    <p><b>Not having a reaction today.</b></p>
+        <div class="col-sm-6">
+            {% if reaction %}
+            {% if reaction.reaction %}
+            <div class="panel panel-danger">
+                {% else %}
+                <div class="panel panel-success">
                     {% endif %}
-                    {% if reaction.diary %}
-                    <div class="panel-body">
-                        <p>{{ reaction.diary }}</p>
+                    <div class="panel-heading">
+                        <div class="panel-title">Reaction</div>
                     </div>
-                    {% endif %}
-                    <a href="{% url 'reaction:update' reaction.id %}">
-                        <button class="btn btn-lg btn-danger">
-                            Edit Reaction
-                        </button>
-                    </a>
-                    {% empty %}
-                    <p>No reactions registered so far today.</p>
-                    <a href="{% url 'reaction:create' %}">
-                        <button class="btn btn-lg btn-success">
-                            Register Reaction
-                        </button>
-                    </a>
-                    {% endfor %}
+                    <div class="panel-body">
+                        {% if reaction.reaction %}
+                        <p><b>Having a reaction today.</b></p>
+                        {% else %}
+                        <p><b>Not having a reaction today.</b></p>
+                        {% endif %}
+                        {% if reaction.diary %}
+                        <div class="panel-body">
+                            <p>{{ reaction.diary }}</p>
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'reaction:update' reaction.id %}">
+                            <button class="btn btn-lg btn-danger">
+                                Edit Reaction
+                            </button>
+                        </a>
+                    </div>
                 </div>
+                {% else %}
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">Reaction</div>
+                    </div>
+                    <div class="panel-body">
+                        <p>You have not registered a reaction today.</p>
+                        <a href="{% url 'reaction:create' %}">
+                            <button class="btn btn-lg btn-success">
+                                Register Reaction
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}

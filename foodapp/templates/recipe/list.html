@@ -12,16 +12,35 @@
         <br />
         <br />
     </div>
-    {% for recipe in object_list %}
-    <div class="panel panel-primary center-block" style="max-width:600px">
-        <div class="panel-heading">
-            <div class="panel-title">
-                <a href="{% url 'recipe:detail' recipe.id %}">
-                    {{ recipe.name }}
-                </a>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-10">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Recipes
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form method="get">
+                        <div class="form-inline">
+                            <input class="form-control" type="text" name="recipe" placeholder="Search by recipe name">
+                            <button class="btn" type="submit">Search</button>
+                        </div>
+                    </form>
+                    <ul class="list-group">
+                        {% for recipe in object_list %}
+                        <a class="list-group-item list-group-item-light" href="{% url 'recipe:detail' recipe.id %}">
+                            {{ recipe.name }}
+                        </a>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
+        <div class="col-xs-1"></div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

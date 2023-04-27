@@ -2,36 +2,42 @@
 {% block title %} {{ object.name }} {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="panel panel-primary center-block" style="max-width:600px">
-        <div class="panel-heading">
-            <div class="panel-title">{{ object.name }}</div>
-        </div>
-        <ul class="list-group">
-            {% for ingredient in ingredients %}
-            <div class="list-group-item list-group-item-light">
-                {{ ingredient.amount }} g of {{ ingredient.ingredient.name }}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-10">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">{{ object.name }}</div>
+                </div>
+                <ul class="list-group">
+                    {% for ingredient in ingredients %}
+                    <div class="list-group-item list-group-item-light">
+                        {{ ingredient.amount }} g of {{ ingredient.ingredient.name }}
+                    </div>
+                    {% empty %}
+                    <p>No ingredients registered.</p>
+                    {% endfor %}
+                </ul>
+                <div class="panel-footer">
+                    <div class="text-center">
+                        <a href="{% url 'recipe:update' object.id %}">
+                            <button class="btn btn-lg btn-danger">
+                                Edit
+                            </button>
+                        </a>
+                        <a href="{% url 'recipe:delete' object.id %}">
+                            <button class="btn btn-lg btn-danger">
+                                Delete
+                            </button>
+                        </a>
+                        <br />
+                        <br />
+                    </div>
+                </div>
             </div>
-            {% empty %}
-            <p>No ingredients registered.</p>
-            {% endfor %}
-        </ul>
-        <div class="panel-footer">
-            <div class="text-center">
-                <a href="{% url 'recipe:update' object.id %}">
-                    <button class="btn btn-lg btn-danger">
-                        Edit
-                    </button>
-                </a>
-                <a href="{% url 'recipe:delete' object.id %}">
-                    <button class="btn btn-lg btn-danger">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button>
-                </a>
-                <br />
-                <br />
-            </div>
         </div>
+        <div class="col-xs-1"></div>
     </div>
 </div>
 {% endblock %}

@@ -11,31 +11,33 @@
     <br />
     <br />
 </div>
-<div class="container-fluid">
+<div class="container">
+    {% for date, meals in daylist %}
     <div class="row">
-        {% for date, meals in daylist %}
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    {{ date }}
+        <div class="col-xs-1"></div>
+        <div class="col-xs-10">
+            <div class="panel panel-primary">
+                <div class=" panel-heading">
+                    <div class="panel-title">
+                        {{ date }}
+                    </div>
                 </div>
-            </div>
 
-            {% for meal in meals %}
-            <div class="list-group-item list-group-item-light">
-                <p>{{ meal.amount }} g of {{ meal.ingredient.name }}
-                    <a href="{% url 'meal:delete' meal.id %}">
-                        <button class="btn-danger pull-right">
-                            Remove
-                        </button>
-                    </a>
-                </p>
+                {% for meal in meals %}
+                <div class="list-group-item list-group-item-light">
+                    <p>{{ meal.amount }} g of {{ meal.food.name }}
+                        <a class="pull-right" href="{% url 'meal:delete' meal.id %}">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </p>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-        {% empty %}
-        <h3>No meals registered yet.</h3>
-        {% endfor %}
+        <div class="col-xs-1"></div>
     </div>
+    {% empty %}
+    <h3>No meals registered yet.</h3>
+    {% endfor %}
 </div>
 {% endblock %}

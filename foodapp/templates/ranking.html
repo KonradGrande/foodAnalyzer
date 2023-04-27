@@ -2,22 +2,28 @@
 {% block title %} Ranking {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="panel panel-primary center-block" style="max-width:600px">
-        <div class="panel-heading">
-            <div class="panel-title">Ranking</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-10">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">Ranking</div>
+                </div>
+                <ul class="list-group">
+                    {% for suspect in ranking %}
+                    <a href="#" class="list-group-item list-group-item-light">
+                        <p>{{ suspect.name }}
+                            <span class="badge pull-right">
+                                {{ suspect.reactivity }}
+                            </span>
+                        </p>
+                    </a>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-        <ul class="list-group">
-            {% for food, score in ranking %}
-            <a href="{% url 'history' food.id %}" class="list-group-item list-group-item-light">
-                <p>{{ food.name }}
-                    <span class="badge pull-right">
-                        {{ score }}
-                    </span>
-                </p>
-            </a>
-            {% endfor %}
-        </ul>
+        <div class="col-xs-1"></div>
     </div>
 </div>
 {% endblock %}

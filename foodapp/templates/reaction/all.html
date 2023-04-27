@@ -11,34 +11,46 @@
     <br />
     <br />
 </div>
-<div class="container-fluid">
+<div class="container">
+    {% for reaction in reactions %}
     <div class="row">
-        {% for reaction in reactions %}
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-
-                <div class="panel-title">
-                    {{ reaction.date }}
+        <div class="col-xs-1"></div>
+        <div class="col-xs-10">
+            {% if reaction.reaction %}
+            <div class="panel panel-danger">
+                {% else %}
+                <div class="panel panel-success">
+                    {% endif %}
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            {{ reaction.date }}
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <p>
+                            <b>
+                                {% if reaction.reaction %}
+                                Had a reaction.
+                                {% else %}
+                                Had no reaction
+                                {% endif %}
+                            </b>
+                            <a class="pull-right" href="{% url 'reaction:update' reaction.id %}">
+                                <button class="btn btn-sm btn-danger">
+                                    Edit Reaction
+                                </button>
+                            </a>
+                        </p>
+                        <p>
+                            {{ reaction.diary }}
+                        </p>
+                    </div>
                 </div>
             </div>
-
-            <div class="panel-body">
-                {% if reaction.reaction %}
-                <p>I did not feel good.</p>
-                {% else %}
-                <p>I felt fine.</p>
-                {% endif %}
-                <!-- <div class="panel-body"> -->
-                <a href="{% url 'reaction:update' reaction.id %}">
-                    <button class="btn btn-sm btn-danger">
-                        Edit Reaction
-                    </button>
-                </a>
-            </div>
+            <div class="col-xs-1"></div>
         </div>
         {% empty %}
         <h3>No reactions registered.</h3>
         {% endfor %}
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
