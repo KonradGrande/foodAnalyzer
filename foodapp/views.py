@@ -1,3 +1,6 @@
+from django.db.models import Q
+from dataclasses import dataclass
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from .models import Ingredient, Recipe, IngredientRecipe, Meal, Reaction
 from django.contrib.auth.forms import UserCreationForm
@@ -33,12 +36,15 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         today = timezone.now().date()
         meals = Meal.objects.filter(user=self.request.user, date=today)
 
-        reactions = Reaction.objects.filter(
-            user=self.request.user, date=today
-        )
+        try:
+            reaction = Reaction.objects.get(
+                user=self.request.user, date=today
+            )
+        except Reaction.DoesNotExist:
+            reaction = None
 
         context["meals"] = meals
-        context["reactions"] = reactions
+        context["reaction"] = reaction
         return context
 
 
@@ -47,7 +53,7 @@ class MealCreateView(LoginRequiredMixin, CreateView):
     model = Meal
     fields = [
         "date",
-        "ingredient",
+        "food",
         "amount",
     ]
 
@@ -111,7 +117,11 @@ class ReactionCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        try:
+            return super().form_valid(form)
+        except IntegrityError as e:
+            form.add_error("date", e)
+            return self.form_invalid(form)
 
 
 class ReactionUpdateView(LoginRequiredMixin, UpdateView):
@@ -123,6 +133,14 @@ class ReactionUpdateView(LoginRequiredMixin, UpdateView):
         return Reaction.objects.filter(
             user=self.request.user, id=self.kwargs["pk"]
         )
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        try:
+            return super().form_valid(form)
+        except IntegrityError as e:
+            form.add_error("date", e)
+            return self.form_invalid(form)
 
 
 class ReactionDeleteView(LoginRequiredMixin, DeleteView):
@@ -185,10 +203,8 @@ class FoodHistoryView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user
-        ingredient = self.kwargs["pk"]
-        meals = Meal.objects.filter(
-            user=user, ingredient=ingredient
-        ).order_by("-date")
+        recipe = self.kwargs["pk"]
+        meals = Meal.objects.filter(user=user, food=recipe).order_by("-date")
         reactions = Reaction.objects.filter(user=user).order_by("-date")
 
         days = {}
@@ -254,6 +270,14 @@ class IngredientListView(LoginRequiredMixin, ListView):
     template_name = "ingredient/list.html"
     model = Ingredient
 
+    def get_queryset(self):
+        query = self.request.GET.get("ingredient")
+
+        if query:
+            return Ingredient.objects.filter(Q(name__icontains=query))
+        else:
+            return Ingredient.objects.all()
+
 
 class IngredientDetailView(LoginRequiredMixin, DetailView):
     template_name = "ingredient/detail.html"
@@ -275,7 +299,7 @@ class RecipeUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
 
         recipe = Recipe.objects.get(id=self.kwargs["pk"])
-        ingredients = IngredientRecipe.objects.filter(recipe=recipe.id)
+        ingredients = recipe.ingredientrecipe_set.all()
         context["recipe"] = recipe
         context["ingredients"] = ingredients
         return context
@@ -293,6 +317,14 @@ class RecipeListView(LoginRequiredMixin, ListView):
     template_name = "recipe/list.html"
     model = Recipe
 
+    def get_queryset(self):
+        query = self.request.GET.get("recipe")
+
+        if query:
+            return Recipe.objects.filter(Q(name__icontains=query))
+        else:
+            return Recipe.objects.all()
+
 
 class RecipeDetailView(LoginRequiredMixin, DetailView):
     template_name = "recipe/detail.html"
@@ -302,7 +334,7 @@ class RecipeDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         recipe = Recipe.objects.get(id=self.kwargs["pk"])
-        ingredients = IngredientRecipe.objects.filter(recipe=recipe.id)
+        ingredients = recipe.ingredientrecipe_set.all()
         context["recipe"] = recipe
         context["ingredients"] = ingredients
         return context
@@ -314,14 +346,42 @@ class IngredientRecipeCreateView(LoginRequiredMixin, CreateView):
     fields = ["ingredient", "amount"]
 
     def form_valid(self, form):
-        form.instance.recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
-        return super().form_valid(form)
+        recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
+        form.instance.recipe = recipe
+        amount = form.instance.amount
+
+        if recipe.is_amount_possible(amount):
+            return super().form_valid(form)
+        else:
+            total = recipe.get_sum_ingredients() + amount
+            form.add_error(
+                "amount",
+                f"The ingredients in the recipe would add up to {total}%",
+            )
+            return self.form_invalid(form)
 
 
 class IngredientRecipeUpdateView(LoginRequiredMixin, UpdateView):
-    template_name = "ingredient_recipe/create.html"
+    template_name = "ingredient_recipe/update.html"
     model = IngredientRecipe
     fields = ["ingredient", "amount"]
+
+    def form_valid(self, form):
+        recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
+        ingredient = IngredientRecipe.objects.get(id=self.kwargs["pk"])
+        amount = form.instance.amount
+
+        diff = amount - ingredient.amount
+
+        if recipe.is_amount_possible(diff):
+            return super().form_valid(form)
+        else:
+            total = recipe.get_sum_ingredients() + diff
+            form.add_error(
+                "amount",
+                f"The ingredients in the recipe would add up to {total}%",
+            )
+            return self.form_invalid(form)
 
 
 class IngredientRecipeDeleteView(LoginRequiredMixin, DeleteView):

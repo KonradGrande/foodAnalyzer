@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
@@ -22,14 +23,31 @@ class Recipe(models.Model):
         Ingredient, through="IngredientRecipe"
     )
 
+    def get_sum_ingredients(self):
+        ingredients = self.ingredientrecipe_set.all()
+        total = 0
+        for ingredient in ingredients:
+            total += ingredient.amount
+        return total
+
+    def is_amount_possible(self, amount):
+        if self.get_sum_ingredients() + amount <= 100:
+            return True
+        return False
+
     def get_absolute_url(self):
         return reverse("recipe:list")
+
+    def __str__(self):
+        return self.name
 
 
 class IngredientRecipe(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField()
+    amount = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
 
     def get_absolute_url(self):
         return reverse("recipe:update", kwargs={"pk": self.recipe.id})
@@ -39,7 +57,7 @@ class Meal(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="user"
     )
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    food = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField()
     date = models.DateField(default=timezone.now)
 
@@ -48,7 +66,7 @@ class Meal(models.Model):
 
     def __str__(self):
         return (
-            f"{self.user} ate {self.amount}g of {self.ingredient} {self.date}"
+            f"{self.user} ate {self.amount}g of {self.food.name} {self.date}"
         )
 
 
@@ -63,7 +81,7 @@ class Reaction(models.Model):
     diary = models.TextField()
 
     def get_absolute_url(self):
-        return reverse("rection:all")
+        return reverse("reaction:all")
 
     def __str__(self):
         if self.reaction:
