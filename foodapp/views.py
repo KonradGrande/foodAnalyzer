@@ -155,62 +155,6 @@ class ReactionDeleteView(LoginRequiredMixin, DeleteView):
         return reverse("dashboard")
 
 
-class RankingView(LoginRequiredMixin, TemplateView):
-    template_name = "ranking.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-
-        context["ranking"] = Ranker(user).get_ranking()
-        return context
-
-
-class FoodHistoryView(LoginRequiredMixin, DetailView):
-    template_name = "food/history.html"
-
-    def get_queryset(self):
-        return Ingredient.objects.filter(id=self.kwargs["pk"])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        user = self.request.user
-        recipe = self.kwargs["pk"]
-        meals = Meal.objects.filter(user=user, food=recipe).order_by("-date")
-        reactions = Reaction.objects.filter(user=user).order_by("-date")
-
-        days = {}
-        for meal in meals:
-            if meal.date in days.keys():
-                days[meal.date]["meals"].append(meal)
-            else:
-                days[meal.date] = {"meals": [meal]}
-
-        for reaction in reactions:
-            if reaction.date in days.keys():
-                days[reaction.date]["reaction"] = reaction
-            else:
-                days[reaction.date] = {"reaction": reaction}
-
-        print(days)
-
-        daylist = []
-        for date, mr in days.items():
-            if "meals" in mr.keys():
-                meals = mr["meals"]
-            else:
-                meals = []
-            if "reaction" in mr.keys():
-                reaction = mr["reaction"]
-            else:
-                reaction = None
-            daylist.append((date, meals, reaction))
-
-        context["daylist"] = daylist
-        return context
-
-
 class IngredientCreateView(LoginRequiredMixin, CreateView):
     template_name = "ingredient/create.html"
     model = Ingredient
@@ -365,3 +309,64 @@ class IngredientRecipeDeleteView(LoginRequiredMixin, DeleteView):
         return reverse(
             "recipe:update", kwargs={"pk": self.kwargs["recipe_pk"]}
         )
+
+
+class RankingView(LoginRequiredMixin, TemplateView):
+    template_name = "ranking.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        context["ranking"] = Ranker(user).get_ranking()
+        return context
+
+
+SUCCESS = "success"
+WARNING = "warning"
+INFO = "info"
+DANGER = "danger"
+
+
+def panel(type, title, body=None, footer=None):
+    p = f"""<div class="panel panel-{type}">
+    <div class="panel-heading">{title}</div>"""
+    if body:
+        p += f"""<div class="panel-body">{body}</div>"""
+    if footer:
+        p += f"""<div class="panel-footer">{footer}</div>"""
+    p += "</div>"
+    return p
+
+
+class FoodHistoryView(LoginRequiredMixin, TemplateView):
+    template_name = "food/history.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ranker = Ranker(self.request.user)
+
+        suspect = None
+        for key, sus in ranker.suspects.items():
+            if sus.name == self.kwargs["suspect"]:
+                suspect = sus
+        # print(ranker.suspects[suspect.])
+
+        panels = []
+        amount_in_reactions = ranker.ingredient_amount_per_reaction(
+            suspect.name
+        )
+        for reaction in ranker.reactions:
+            type = DANGER if reaction.reaction else SUCCESS
+            panels.append(
+                panel(
+                    type,
+                    f"{reaction.date}",
+                    body=f"{reaction.diary}",
+                    footer=f"Amount of {suspect.name} consumed: {amount_in_reactions[reaction]}",
+                )
+            )
+
+        context["title"] = f"<h1>{suspect.name}</h1>"
+        context["panels"] = panels
+        return context

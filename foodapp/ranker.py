@@ -91,12 +91,18 @@ class Ranker:
 
         return ranking
 
-    def ingredient_amount_per_reaction(self, ingredient):
+    def ingredient_amount_per_reaction(self, suspect_name):
         ingredient_per_reaction = {}
         for reaction in self.reactions:
             ingredients = self.ingredients_in_reaction_window(reaction.date)
-            if ingredient in ingredients.keys():
-                ingredient_per_reaction[reaction] = ingredients[ingredient]
+
+            if suspect_name == "lactose" or suspect_name == "gluten":
+                key = suspect_name
+            else:
+                key = Ingredient.objects.get(name=suspect_name).id
+
+            if key in ingredients.keys():
+                ingredient_per_reaction[reaction] = ingredients[key]
             else:
                 ingredient_per_reaction[reaction] = 0
         return ingredient_per_reaction

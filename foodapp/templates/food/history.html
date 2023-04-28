@@ -3,41 +3,15 @@
 
 {% block content %}
 <div class="container">
-    {% for date, meals, reaction in daylist %}
+    {{ title | safe }}
+    {% for panel in panels %}
     <div class="row">
         <div class="col-sm-1"></div>
         <div class="col-sm-10">
-            {% if reaction.reaction %}
-            <div class="panel panel-danger">
-                {% else %}
-                <div class="panel panel-success">
-                    {% endif %}
-                    <div class="panel-heading">
-                        <div class="panel-title">{{ date }}</div>
-                    </div>
-                    {% if reaction %}
-                    <div class="panel-body">
-                        {% if reaction.reaction %}
-                        <p><b>Had reaction.</b></p>
-                        {% else %}
-                        <p><b>No reaction.</b></p>
-                        {% endif %}
-                        {% if reaction.diary %}
-                        <p>{{ reaction.diary }}</p>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    <ul class="list-group">
-                        {% for meal in meals %}
-                        <div class="list-group-item list-group-item-light">
-                            <p>{{ meal.amount }} g of {{ meal.food.name }}
-                        </div>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xs-1"></div>
+            {{ panel | safe }}
         </div>
-        {% endfor %}
+        <div class="col-xs-1"></div>
     </div>
-    {% endblock %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -149,7 +149,7 @@ urlpatterns = [
     path("recipe/", include(recipe_urls)),
     path("ranking/", views.RankingView.as_view(), name="ranking"),
     path(
-        "food/history/<int:pk>",
+        "food/history/<str:suspect>",
         views.FoodHistoryView.as_view(),
         name="history",
     ),
