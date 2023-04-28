@@ -50,6 +50,16 @@ class Ranker:
                     log_ingredient("gluten", gluten * meal.amount)
         return ingredients
 
+    def ingredients_key_to_suspect_name(self, key):
+        if key == "lactose" or key == "gluten":
+            return key
+        return Ingredient.objects.get(id=key).name
+
+    def suspect_name_to_ingredients_key(self, name):
+        if name == "lactose" or name == "gluten":
+            return name
+        return Ingredient.objects.get(name=name).id
+
     def analyse_reactions(self):
         def analyse_reaction(reaction):
             ingredients = self.ingredients_in_reaction_window(reaction.date)
@@ -65,13 +75,10 @@ class Ranker:
                             self.suspects[ingredient_key].reactivity += 1
                             self.suspects[ingredient_key].threshold = amount
                 else:
-                    if (
-                        ingredient_key == "lactose"
-                        or ingredient_key == "gluten"
-                    ):
-                        name = ingredient_key
-                    else:
-                        name = Ingredient.objects.get(id=ingredient_key).name
+                    name = self.ingredients_key_to_suspect_name(
+                        ingredient_key
+                    )
+
                     self.suspects[ingredient_key] = Suspect(
                         name,
                         amount,
@@ -96,10 +103,7 @@ class Ranker:
         for reaction in self.reactions:
             ingredients = self.ingredients_in_reaction_window(reaction.date)
 
-            if suspect_name == "lactose" or suspect_name == "gluten":
-                key = suspect_name
-            else:
-                key = Ingredient.objects.get(name=suspect_name).id
+            key = self.suspect_name_to_ingredients_key(suspect_name)
 
             if key in ingredients.keys():
                 ingredient_per_reaction[reaction] = ingredients[key]
