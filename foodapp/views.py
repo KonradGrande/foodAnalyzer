@@ -339,6 +339,28 @@ def panel(type, title, body=None, footer=None):
     return p
 
 
+def list(items):
+    l = "<ul>"
+    for item in items:
+        l += f"<li>{item}</li>"
+    l += "</ul>"
+    return l
+
+
+def rows(items):
+    r = ""
+    for item in items:
+        r += f"""
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                {item}
+            </div>
+            <div class="col-xs-1"></div>
+        </div>"""
+    return r
+
+
 class FoodHistoryView(LoginRequiredMixin, TemplateView):
     template_name = "food/history.html"
 
@@ -350,7 +372,6 @@ class FoodHistoryView(LoginRequiredMixin, TemplateView):
         for key, sus in ranker.suspects.items():
             if sus.name == self.kwargs["suspect"]:
                 suspect = sus
-        # print(ranker.suspects[suspect.])
 
         panels = []
         amount_in_reactions = ranker.ingredient_amount_per_reaction(

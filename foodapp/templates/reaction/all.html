@@ -14,8 +14,8 @@
 <div class="container">
     {% for reaction in reactions %}
     <div class="row">
-        <div class="col-xs-1"></div>
-        <div class="col-xs-10">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
             {% if reaction.reaction %}
             <div class="panel panel-danger">
                 {% else %}
@@ -47,7 +47,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-1"></div>
+            <div class="col-sm-1"></div>
         </div>
         {% empty %}
         <h3>No reactions registered.</h3>
