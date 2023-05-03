@@ -43,11 +43,11 @@ class Ranker:
                 if gluten == 0 and lactose == 0:
                     log_ingredient(
                         ingredient.ingredient.id,
-                        ingredient.amount * meal.amount,
+                        ingredient.amount * meal.amount / 100,
                     )
                 else:
-                    log_ingredient("lactose", lactose * meal.amount)
-                    log_ingredient("gluten", gluten * meal.amount)
+                    log_ingredient("lactose", lactose * meal.amount / 100)
+                    log_ingredient("gluten", gluten * meal.amount / 100)
         return ingredients
 
     def ingredients_key_to_suspect_name(self, key):
@@ -65,7 +65,7 @@ class Ranker:
             ingredients = self.ingredients_in_reaction_window(reaction.date)
             for ingredient_key, amount in ingredients.items():
                 if ingredient_key in self.suspects.keys():
-                    if self.suspects[ingredient_key].threshold < amount:
+                    if self.suspects[ingredient_key].threshold <= amount:
                         if reaction.reaction:
                             self.suspects[ingredient_key].reactivity += 1
                         else:
