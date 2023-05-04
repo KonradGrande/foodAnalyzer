@@ -20,20 +20,20 @@ class Ranker:
         self.suspects = {}
         self.analyse_reactions()
 
-    def ingredients_in_reaction_window(self, reaction_date):
-        """How much of each ingredient the user ate before the reaction."""
+    def suspects_in_reaction_window(self, reaction_date):
+        """How much of each suspect the user ate before the reaction."""
         day_before = reaction_date - timedelta(days=1)
         relevant_meals = self.meals.filter(
             date__range=[day_before, reaction_date]
         )
 
-        ingredients = {}
+        suspects_in_window = {}
 
-        def log_ingredient(ingredient, amount):
-            if ingredient in ingredients.keys():
-                ingredients[ingredient] += amount
+        def log_suspect(suspect_key, amount):
+            if suspect_key in suspects_in_window.keys():
+                suspects_in_window[suspect_key] += amount
             else:
-                ingredients[ingredient] = amount
+                suspects_in_window[suspect_key] = amount
 
         for meal in relevant_meals:
             irs = IngredientRecipe.objects.filter(recipe=meal.food)
@@ -41,51 +41,48 @@ class Ranker:
                 gluten = ingredient.ingredient.gluten
                 lactose = ingredient.ingredient.lactose
                 if gluten == 0 and lactose == 0:
-                    log_ingredient(
+                    log_suspect(
                         ingredient.ingredient.id,
                         ingredient.amount * meal.amount / 100,
                     )
                 else:
-                    log_ingredient("lactose", lactose * meal.amount / 100)
-                    log_ingredient("gluten", gluten * meal.amount / 100)
-        return ingredients
+                    log_suspect("lactose", lactose * meal.amount / 100)
+                    log_suspect("gluten", gluten * meal.amount / 100)
+        return suspects_in_window
 
-    def ingredients_key_to_suspect_name(self, key):
+    def suspect_key_to_suspect_name(self, key):
         if key == "lactose" or key == "gluten":
             return key
         return Ingredient.objects.get(id=key).name
 
-    def suspect_name_to_ingredients_key(self, name):
+    def suspect_name_to_suspect_key(self, name):
         if name == "lactose" or name == "gluten":
             return name
         return Ingredient.objects.get(name=name).id
 
     def analyse_reactions(self):
-        def analyse_reaction(reaction):
-            ingredients = self.ingredients_in_reaction_window(reaction.date)
-            for ingredient_key, amount in ingredients.items():
-                if ingredient_key in self.suspects.keys():
-                    if self.suspects[ingredient_key].threshold <= amount:
+        for reaction in self.reactions:
+            suspects_in_window = self.suspects_in_reaction_window(
+                reaction.date
+            )
+            for suspect_key, amount in suspects_in_window.items():
+                if suspect_key in self.suspects.keys():
+                    if self.suspects[suspect_key].threshold <= amount:
                         if reaction.reaction:
-                            self.suspects[ingredient_key].reactivity += 1
+                            self.suspects[suspect_key].reactivity += 1
                         else:
-                            self.suspects[ingredient_key].reactivity = 0
+                            self.suspects[suspect_key].reactivity = 0
                     else:
                         if reaction.reaction:
-                            self.suspects[ingredient_key].reactivity += 1
-                            self.suspects[ingredient_key].threshold = amount
+                            self.suspects[suspect_key].reactivity += 1
+                            self.suspects[suspect_key].threshold = amount
                 else:
-                    name = self.ingredients_key_to_suspect_name(
-                        ingredient_key
-                    )
+                    name = self.suspect_key_to_suspect_name(suspect_key)
 
-                    self.suspects[ingredient_key] = Suspect(
+                    self.suspects[suspect_key] = Suspect(
                         name,
                         amount,
                     )
-
-        for reaction in self.reactions:
-            analyse_reaction(reaction)
 
     def get_ranking(self):
         ranking = []
@@ -98,15 +95,17 @@ class Ranker:
 
         return ranking
 
-    def ingredient_amount_per_reaction(self, suspect_name):
-        ingredient_per_reaction = {}
+    def suspect_amount_per_reaction(self, suspect_name):
+        amount_per_reaction = {}
         for reaction in self.reactions:
-            ingredients = self.ingredients_in_reaction_window(reaction.date)
+            suspects_in_window = self.suspects_in_reaction_window(
+                reaction.date
+            )
 
-            key = self.suspect_name_to_ingredients_key(suspect_name)
+            key = self.suspect_name_to_suspect_key(suspect_name)
 
-            if key in ingredients.keys():
-                ingredient_per_reaction[reaction] = ingredients[key]
+            if key in suspects_in_window.keys():
+                amount_per_reaction[reaction] = suspects_in_window[key]
             else:
-                ingredient_per_reaction[reaction] = 0
-        return ingredient_per_reaction
+                amount_per_reaction[reaction] = 0
+        return amount_per_reaction

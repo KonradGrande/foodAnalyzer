@@ -374,9 +374,7 @@ class FoodHistoryView(LoginRequiredMixin, TemplateView):
                 suspect = sus
 
         panels = []
-        amount_in_reactions = ranker.ingredient_amount_per_reaction(
-            suspect.name
-        )
+        amount_in_reactions = ranker.suspect_amount_per_reaction(suspect.name)
         for reaction in ranker.reactions:
             type = DANGER if reaction.reaction else SUCCESS
             panels.append(
