@@ -24,6 +24,43 @@
                         <input type="submit" class="btn btn-primary center-block" value="Update ingredient">
                     </form>
                 </div>
+                <div class="panel-footer">
+                    <div class="text-center">
+                        <a href="{% url 'ingredient:allergens:create' ingredient.id %}">
+                            <button class="btn btn-lg btn-success">
+                                Add allergen
+                            </button>
+                        </a>
+                        <br />
+                        <br />
+                    </div>
+                    <ul class="list-group">
+                        {% for allergen in allergens %}
+                        <div class="list-group-item list-group-item-light">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    {{ allergen.amount }} g of {{ allergen.allergen.name }}
+                                </div>
+                                <div class="col-sm-4">
+                                    <a href="{% url 'ingredient:allergens:update' ingredient.id allergen.id %}">
+                                        <button class="btn btn-primary">
+                                            Edit
+                                        </button>
+                                    </a>
+
+                                    <a href="{% url 'ingredient:allergens:delete' ingredient.id allergen.id %}">
+                                        <button class="btn btn-danger">
+                                            Delete
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>No allergens registered.</p>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="col-sm-1"></div>

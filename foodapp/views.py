@@ -3,7 +3,9 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from .models import (
+    Allergen,
     Ingredient,
+    IngredientAllergen,
     Recipe,
     RecipeIngredient,
     Meal,
@@ -164,21 +166,22 @@ class ReactionDeleteView(LoginRequiredMixin, DeleteView):
 class IngredientCreateView(LoginRequiredMixin, CreateView):
     template_name = "ingredient/create.html"
     model = Ingredient
-    fields = [
-        "name",
-        "lactose",
-        "gluten",
-    ]
+    fields = ["name"]
 
 
 class IngredientUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "ingredient/update.html"
     model = Ingredient
-    fields = [
-        "name",
-        "lactose",
-        "gluten",
-    ]
+    fields = ["name"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        ingredient = Ingredient.objects.get(id=self.kwargs["pk"])
+        allergens = ingredient.ingredientallergen_set.all()
+        context["ingredient"] = ingredient
+        context["allergens"] = allergens
+        return context
 
 
 class IngredientDeleteView(LoginRequiredMixin, DeleteView):
@@ -205,6 +208,14 @@ class IngredientListView(LoginRequiredMixin, ListView):
 class IngredientDetailView(LoginRequiredMixin, DetailView):
     template_name = "ingredient/detail.html"
     model = Ingredient
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        ingredient = Ingredient.objects.get(id=self.kwargs["pk"])
+        allergens = ingredient.ingredientallergen_set.all()
+        context["allergens"] = allergens
+        return context
 
 
 class RecipeCreateView(LoginRequiredMixin, CreateView):

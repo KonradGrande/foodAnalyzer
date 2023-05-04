@@ -10,10 +10,15 @@
                 <div class="panel-heading">
                     <div class="panel-title">{{ object.name }}</div>
                 </div>
-                <div class="panel-body">
-                    <p>Lactose: {{ingredient.gluten}}</p>
-                    <p>Gluten: {{ingredient.lactose}}</p>
-                </div>
+                <ul class="list-group">
+                    {% for allergen in allergens %}
+                    <div class="list-group-item list-group-item-light">
+                        {{ allergen.amount }} g of {{ allergen.allergen.name }}
+                    </div>
+                    {% empty %}
+                    <p>No known allergens in this ingredient.</p>
+                    {% endfor %}
+                </ul>
                 <div class="panel-footer">
                     <div class="text-center">
                         <a href="{% url 'ingredient:update' object.id %}">
