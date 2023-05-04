@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from dataclasses import dataclass
-from .models import Ingredient, IngredientRecipe, Meal, Reaction
+from .models import Ingredient, RecipeIngredient, Meal, Reaction
 from datetime import timedelta
 
 
@@ -36,7 +36,7 @@ class Ranker:
                 suspects_in_window[suspect_key] = amount
 
         for meal in relevant_meals:
-            irs = IngredientRecipe.objects.filter(recipe=meal.food)
+            irs = RecipeIngredient.objects.filter(recipe=meal.food)
             for ingredient in irs:
                 gluten = ingredient.ingredient.gluten
                 lactose = ingredient.ingredient.lactose

@@ -95,21 +95,21 @@ ingredient_urls = (
     "ingredient",
 )
 
-ingredient_recipe_urls = (
+recipe_ingredient_urls = (
     [
         path(
             "create/",
-            views.IngredientRecipeCreateView.as_view(),
+            views.RecipeIngredientCreateView.as_view(),
             name="create",
         ),
         path(
             "delete/<int:pk>",
-            views.IngredientRecipeDeleteView.as_view(),
+            views.RecipeIngredientDeleteView.as_view(),
             name="delete",
         ),
         path(
             "update/<int:pk>",
-            views.IngredientRecipeUpdateView.as_view(),
+            views.RecipeIngredientUpdateView.as_view(),
             name="update",
         ),
     ],
@@ -133,7 +133,7 @@ recipe_urls = (
             name="detail",
         ),
         path("list/", views.RecipeListView.as_view(), name="list"),
-        path("<int:recipe_pk>/ingredients/", include(ingredient_recipe_urls)),
+        path("<int:recipe_pk>/ingredients/", include(recipe_ingredient_urls)),
     ],
     "recipe",
 )

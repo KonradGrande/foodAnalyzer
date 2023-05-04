@@ -2,7 +2,13 @@ from .ranker import Ranker
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.utils import timezone
-from .models import Ingredient, Recipe, IngredientRecipe, Meal, Reaction
+from .models import (
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    Meal,
+    Reaction,
+)
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import TemplateView, ListView
 from django.views.generic.detail import DetailView
@@ -216,7 +222,7 @@ class RecipeUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
 
         recipe = Recipe.objects.get(id=self.kwargs["pk"])
-        ingredients = recipe.ingredientrecipe_set.all()
+        ingredients = recipe.recipeingredient_set.all()
         context["recipe"] = recipe
         context["ingredients"] = ingredients
         return context
@@ -251,15 +257,15 @@ class RecipeDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         recipe = Recipe.objects.get(id=self.kwargs["pk"])
-        ingredients = recipe.ingredientrecipe_set.all()
+        ingredients = recipe.recipeingredient_set.all()
         context["recipe"] = recipe
         context["ingredients"] = ingredients
         return context
 
 
-class IngredientRecipeCreateView(LoginRequiredMixin, CreateView):
+class RecipeIngredientCreateView(LoginRequiredMixin, CreateView):
     template_name = "ingredient_recipe/create.html"
-    model = IngredientRecipe
+    model = RecipeIngredient
     fields = ["ingredient", "amount"]
 
     def form_valid(self, form):
@@ -278,14 +284,14 @@ class IngredientRecipeCreateView(LoginRequiredMixin, CreateView):
             return self.form_invalid(form)
 
 
-class IngredientRecipeUpdateView(LoginRequiredMixin, UpdateView):
+class RecipeIngredientUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "ingredient_recipe/update.html"
-    model = IngredientRecipe
+    model = RecipeIngredient
     fields = ["ingredient", "amount"]
 
     def form_valid(self, form):
         recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
-        ingredient = IngredientRecipe.objects.get(id=self.kwargs["pk"])
+        ingredient = RecipeIngredient.objects.get(id=self.kwargs["pk"])
         amount = form.instance.amount
 
         diff = amount - ingredient.amount
@@ -301,9 +307,9 @@ class IngredientRecipeUpdateView(LoginRequiredMixin, UpdateView):
             return self.form_invalid(form)
 
 
-class IngredientRecipeDeleteView(LoginRequiredMixin, DeleteView):
+class RecipeIngredientDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "ingredient_recipe/delete.html"
-    model = IngredientRecipe
+    model = RecipeIngredient
 
     def get_success_url(self):
         return reverse(

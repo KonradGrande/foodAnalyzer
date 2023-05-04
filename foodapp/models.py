@@ -20,7 +20,7 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     name = models.CharField(max_length=100, unique=True)
     ingredients = models.ManyToManyField(
-        Ingredient, through="IngredientRecipe"
+        Ingredient, through="RecipeIngredient"
     )
 
     def get_sum_ingredients(self):
@@ -42,7 +42,7 @@ class Recipe(models.Model):
         return self.name
 
 
-class IngredientRecipe(models.Model):
+class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(
