@@ -5,16 +5,45 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 
+class Allergen(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    lactose = models.PositiveIntegerField()
-    gluten = models.PositiveIntegerField()
+    allergens = models.ManyToManyField(Allergen, through="IngredientAllergen")
+
+    def get_sum_allergens(self):
+        allergens = self.ingredientallergen_set.all()
+        total = 0
+        for allergen in allergens:
+            total += allergen.amount
+        return total
+
+    def is_amount_possible(self, amount):
+        if self.get_sum_allergens() + amount <= 100:
+            return True
+        return False
 
     def get_absolute_url(self):
         return reverse("ingredient:list")
 
     def __str__(self):
         return self.name
+
+
+class IngredientAllergen(models.Model):
+    allergen = models.ForeignKey(Allergen, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+
+    def get_absolute_url(self):
+        return reverse("ingredient:update", kwargs={"pk": self.ingredient.id})
 
 
 class Recipe(models.Model):
