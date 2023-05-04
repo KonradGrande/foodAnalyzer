@@ -72,6 +72,27 @@ reaction_urls = (
     "reaction",
 )
 
+ingredient_allergen_urls = (
+    [
+        path(
+            "create/",
+            views.IngredientAllergenCreateView.as_view(),
+            name="create",
+        ),
+        path(
+            "delete/<int:pk>",
+            views.IngredientAllergenDeleteView.as_view(),
+            name="delete",
+        ),
+        path(
+            "update/<int:pk>",
+            views.IngredientAllergenUpdateView.as_view(),
+            name="update",
+        ),
+    ],
+    "allergens",
+)
+
 ingredient_urls = (
     [
         path("create/", views.IngredientCreateView.as_view(), name="create"),
@@ -91,6 +112,10 @@ ingredient_urls = (
             name="detail",
         ),
         path("list/", views.IngredientListView.as_view(), name="list"),
+        path(
+            "<int:ingredient_pk>/allergens/",
+            include(ingredient_allergen_urls),
+        ),
     ],
     "ingredient",
 )

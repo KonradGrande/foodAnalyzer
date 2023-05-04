@@ -218,6 +218,60 @@ class IngredientDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+class IngredientAllergenCreateView(LoginRequiredMixin, CreateView):
+    template_name = "ingredient_allergen/create.html"
+    model = IngredientAllergen
+    fields = ["allergen", "amount"]
+
+    def form_valid(self, form):
+        ingredient = Ingredient.objects.get(id=self.kwargs["ingredient_pk"])
+        form.instance.ingredient = ingredient
+        amount = form.instance.amount
+
+        if ingredient.is_amount_possible(amount):
+            return super().form_valid(form)
+        else:
+            total = ingredient.get_sum_allergens() + amount
+            form.add_error(
+                "amount",
+                f"The allergens in the ingredient would add up to {total}%",
+            )
+            return self.form_invalid(form)
+
+
+class IngredientAllergenUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "ingredient_allergen/update.html"
+    model = IngredientAllergen
+    fields = ["allergen", "amount"]
+
+    def form_valid(self, form):
+        ingredient = Ingredient.objects.get(id=self.kwargs["ingredient_pk"])
+        allergen = IngredientAllergen.objects.get(id=self.kwargs["pk"])
+        amount = form.instance.amount
+
+        diff = amount - allergen.amount
+
+        if ingredient.is_amount_possible(diff):
+            return super().form_valid(form)
+        else:
+            total = ingredient.get_sum_ingredients() + diff
+            form.add_error(
+                "amount",
+                f"The ingredients in the recipe would add up to {total}%",
+            )
+            return self.form_invalid(form)
+
+
+class IngredientAllergenDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "ingredient_allergen/delete.html"
+    model = IngredientAllergen
+
+    def get_success_url(self):
+        return reverse(
+            "ingredient:update", kwargs={"pk": self.kwargs["ingredient_pk"]}
+        )
+
+
 class RecipeCreateView(LoginRequiredMixin, CreateView):
     template_name = "recipe/create.html"
     model = Recipe

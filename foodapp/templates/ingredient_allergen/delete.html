@@ -1,0 +1,11 @@
+{% extends "base_single_panel.html" %}
+{% block title %} Remove allergen {% endblock %}
+{% block panel_title %} Remove allergen {% endblock %}
+{% block panel_body %}
+<form method="post" class="form-vertical">
+    {% csrf_token %}
+    <p>Are you sure you want to remove {{ object.allergen.name }} from this recipe?</p>
+
+    <input type="submit" class="btn btn-primary center-block" value="Confirm">
+</form>
+{% endblock %}
