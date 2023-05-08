@@ -1,5 +1,4 @@
 from .ranker import Ranker
-from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from .models import (
@@ -200,7 +199,7 @@ class IngredientListView(LoginRequiredMixin, ListView):
         query = self.request.GET.get("ingredient")
 
         if query:
-            return Ingredient.objects.filter(Q(name__icontains=query))
+            return Ingredient.objects.filter(name__icontains=query)
         else:
             return Ingredient.objects.all()
 
@@ -221,19 +220,19 @@ class IngredientDetailView(LoginRequiredMixin, DetailView):
 class IngredientAllergenCreateView(LoginRequiredMixin, CreateView):
     template_name = "ingredient_allergen/create.html"
     model = IngredientAllergen
-    fields = ["allergen", "amount"]
+    fields = ["allergen", "percent"]
 
     def form_valid(self, form):
         ingredient = Ingredient.objects.get(id=self.kwargs["ingredient_pk"])
         form.instance.ingredient = ingredient
-        amount = form.instance.amount
+        percent = form.instance.percent
 
-        if ingredient.is_amount_possible(amount):
+        if ingredient.is_percent_possible(percent):
             return super().form_valid(form)
         else:
-            total = ingredient.get_sum_allergens() + amount
+            total = ingredient.get_sum_allergens() + percent
             form.add_error(
-                "amount",
+                "percent",
                 f"The allergens in the ingredient would add up to {total}%",
             )
             return self.form_invalid(form)
@@ -242,21 +241,21 @@ class IngredientAllergenCreateView(LoginRequiredMixin, CreateView):
 class IngredientAllergenUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "ingredient_allergen/update.html"
     model = IngredientAllergen
-    fields = ["allergen", "amount"]
+    fields = ["allergen", "percent"]
 
     def form_valid(self, form):
         ingredient = Ingredient.objects.get(id=self.kwargs["ingredient_pk"])
         allergen = IngredientAllergen.objects.get(id=self.kwargs["pk"])
-        amount = form.instance.amount
+        percent = form.instance.percent
 
-        diff = amount - allergen.amount
+        diff = percent - allergen.percent
 
-        if ingredient.is_amount_possible(diff):
+        if ingredient.is_percent_possible(diff):
             return super().form_valid(form)
         else:
             total = ingredient.get_sum_ingredients() + diff
             form.add_error(
-                "amount",
+                "percent",
                 f"The ingredients in the recipe would add up to {total}%",
             )
             return self.form_invalid(form)
@@ -309,7 +308,7 @@ class RecipeListView(LoginRequiredMixin, ListView):
         query = self.request.GET.get("recipe")
 
         if query:
-            return Recipe.objects.filter(Q(name__icontains=query))
+            return Recipe.objects.filter(name__icontains=query)
         else:
             return Recipe.objects.all()
 
@@ -331,19 +330,19 @@ class RecipeDetailView(LoginRequiredMixin, DetailView):
 class RecipeIngredientCreateView(LoginRequiredMixin, CreateView):
     template_name = "ingredient_recipe/create.html"
     model = RecipeIngredient
-    fields = ["ingredient", "amount"]
+    fields = ["ingredient", "percent"]
 
     def form_valid(self, form):
         recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
         form.instance.recipe = recipe
-        amount = form.instance.amount
+        percent = form.instance.percent
 
-        if recipe.is_amount_possible(amount):
+        if recipe.is_percent_possible(percent):
             return super().form_valid(form)
         else:
-            total = recipe.get_sum_ingredients() + amount
+            total = recipe.get_sum_ingredients() + percent
             form.add_error(
-                "amount",
+                "percent",
                 f"The ingredients in the recipe would add up to {total}%",
             )
             return self.form_invalid(form)
@@ -352,21 +351,21 @@ class RecipeIngredientCreateView(LoginRequiredMixin, CreateView):
 class RecipeIngredientUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "ingredient_recipe/update.html"
     model = RecipeIngredient
-    fields = ["ingredient", "amount"]
+    fields = ["ingredient", "percent"]
 
     def form_valid(self, form):
         recipe = Recipe.objects.get(id=self.kwargs["recipe_pk"])
         ingredient = RecipeIngredient.objects.get(id=self.kwargs["pk"])
-        amount = form.instance.amount
+        percent = form.instance.percent
 
-        diff = amount - ingredient.amount
+        diff = percent - ingredient.percent
 
-        if recipe.is_amount_possible(diff):
+        if recipe.is_percent_possible(diff):
             return super().form_valid(form)
         else:
             total = recipe.get_sum_ingredients() + diff
             form.add_error(
-                "amount",
+                "percent",
                 f"The ingredients in the recipe would add up to {total}%",
             )
             return self.form_invalid(form)

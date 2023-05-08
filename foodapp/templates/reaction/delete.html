@@ -4,7 +4,7 @@
 {% block panel_body %}
 <form method="post" class="form-vertical">
     {% csrf_token %}
-    <p>Are you sure you want to remove the meal consisting of {{object.amount}}g of {{ object.food.name }}?</p>
+    <p>Are you sure you want to remove the meal consisting of {{object.percent}}g of {{ object.food.name }}?</p>
 
     <input type="submit" class="btn btn-primary center-block" value="Confirm">
 </form>

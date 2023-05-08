@@ -20,11 +20,11 @@ class Ingredient(models.Model):
         allergens = self.ingredientallergen_set.all()
         total = 0
         for allergen in allergens:
-            total += allergen.amount
+            total += allergen.percent
         return total
 
-    def is_amount_possible(self, amount):
-        if self.get_sum_allergens() + amount <= 100:
+    def is_percent_possible(self, percent):
+        if self.get_sum_allergens() + percent <= 100:
             return True
         return False
 
@@ -38,7 +38,7 @@ class Ingredient(models.Model):
 class IngredientAllergen(models.Model):
     allergen = models.ForeignKey(Allergen, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField(
+    percent = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
 
@@ -56,11 +56,11 @@ class Recipe(models.Model):
         ingredients = self.ingredientrecipe_set.all()
         total = 0
         for ingredient in ingredients:
-            total += ingredient.amount
+            total += ingredient.percent
         return total
 
-    def is_amount_possible(self, amount):
-        if self.get_sum_ingredients() + amount <= 100:
+    def is_percent_possible(self, percent):
+        if self.get_sum_ingredients() + percent <= 100:
             return True
         return False
 
@@ -74,7 +74,7 @@ class Recipe(models.Model):
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField(
+    percent = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from dataclasses import dataclass
-from .models import Ingredient, RecipeIngredient, Meal, Reaction
+from .models import Meal, Reaction
 from datetime import timedelta
 
 
@@ -36,51 +36,44 @@ class Ranker:
                 suspects_in_window[suspect_key] = amount
 
         for meal in relevant_meals:
-            irs = RecipeIngredient.objects.filter(recipe=meal.food)
-            for ingredient in irs:
-                gluten = ingredient.ingredient.gluten
-                lactose = ingredient.ingredient.lactose
-                if gluten == 0 and lactose == 0:
-                    log_suspect(
-                        ingredient.ingredient.id,
-                        ingredient.amount * meal.amount / 100,
-                    )
+            for ingredient in meal.food.recipeingredient_set.all():
+                allergens = ingredient.ingredient.ingredientallergen_set.all()
+                if allergens:
+                    for allergen in allergens:
+                        log_suspect(
+                            allergen.allergen.name,
+                            amount_allergen(
+                                meal.amount,
+                                ingredient.percent,
+                                allergen.percent,
+                            ),
+                        )
                 else:
-                    log_suspect("lactose", lactose * meal.amount / 100)
-                    log_suspect("gluten", gluten * meal.amount / 100)
+                    log_suspect(
+                        ingredient.ingredient.name,
+                        amount_ingredient(meal.amount, ingredient.percent),
+                    )
         return suspects_in_window
-
-    def suspect_key_to_suspect_name(self, key):
-        if key == "lactose" or key == "gluten":
-            return key
-        return Ingredient.objects.get(id=key).name
-
-    def suspect_name_to_suspect_key(self, name):
-        if name == "lactose" or name == "gluten":
-            return name
-        return Ingredient.objects.get(name=name).id
 
     def analyse_reactions(self):
         for reaction in self.reactions:
             suspects_in_window = self.suspects_in_reaction_window(
                 reaction.date
             )
-            for suspect_key, amount in suspects_in_window.items():
-                if suspect_key in self.suspects.keys():
-                    if self.suspects[suspect_key].threshold <= amount:
+            for suspect_name, amount in suspects_in_window.items():
+                if suspect_name in self.suspects.keys():
+                    if self.suspects[suspect_name].threshold <= amount:
                         if reaction.reaction:
-                            self.suspects[suspect_key].reactivity += 1
+                            self.suspects[suspect_name].reactivity += 1
                         else:
-                            self.suspects[suspect_key].reactivity = 0
+                            self.suspects[suspect_name].reactivity = 0
                     else:
                         if reaction.reaction:
-                            self.suspects[suspect_key].reactivity += 1
-                            self.suspects[suspect_key].threshold = amount
+                            self.suspects[suspect_name].reactivity += 1
+                            self.suspects[suspect_name].threshold = amount
                 else:
-                    name = self.suspect_key_to_suspect_name(suspect_key)
-
-                    self.suspects[suspect_key] = Suspect(
-                        name,
+                    self.suspects[suspect_name] = Suspect(
+                        suspect_name,
                         amount,
                     )
 
@@ -102,10 +95,24 @@ class Ranker:
                 reaction.date
             )
 
-            key = self.suspect_name_to_suspect_key(suspect_name)
-
-            if key in suspects_in_window.keys():
-                amount_per_reaction[reaction] = suspects_in_window[key]
+            if suspect_name in suspects_in_window.keys():
+                amount_per_reaction[reaction] = suspects_in_window[
+                    suspect_name
+                ]
             else:
                 amount_per_reaction[reaction] = 0
         return amount_per_reaction
+
+
+def amount_ingredient(meal_amount, ingredient_percent):
+    """Amount of ingredient in meal."""
+    return meal_amount * ingredient_percent / 100
+
+
+def amount_allergen(meal_amount, ingredient_percent, allergen_percent):
+    """Amount of allergen in ingredient in meal."""
+    return (
+        amount_ingredient(meal_amount, ingredient_percent)
+        * allergen_percent
+        / 100
+    )

@@ -13,7 +13,7 @@
                 <ul class="list-group">
                     {% for allergen in allergens %}
                     <div class="list-group-item list-group-item-light">
-                        {{ allergen.amount }} g of {{ allergen.allergen.name }}
+                        {{ allergen.percent }} g of {{ allergen.allergen.name }}
                     </div>
                     {% empty %}
                     <p>No known allergens in this ingredient.</p>

@@ -13,7 +13,7 @@
                 <ul class="list-group">
                     {% for ingredient in ingredients %}
                     <div class="list-group-item list-group-item-light">
-                        {{ ingredient.amount }} g of {{ ingredient.ingredient.name }}
+                        {{ ingredient.percent }} g of {{ ingredient.ingredient.name }}
                     </div>
                     {% empty %}
                     <p>No ingredients registered.</p>
