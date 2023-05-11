@@ -38,10 +38,10 @@
                         {% for allergen in allergens %}
                         <div class="list-group-item list-group-item-light">
                             <div class="row">
-                                <div class="col-sm-8">
+                                <div class="col-xs-6">
                                     {{ allergen.percent }} g of {{ allergen.allergen.name }}
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-xs-6">
                                     <a href="{% url 'ingredient:allergens:update' ingredient.id allergen.id %}">
                                         <button class="btn btn-primary">
                                             Edit

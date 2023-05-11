@@ -38,10 +38,10 @@
                         {% for ingredient in ingredients %}
                         <div class="list-group-item list-group-item-light">
                             <div class="row">
-                                <div class="col-sm-8">
+                                <div class="col-xs-6">
                                     {{ ingredient.percent }} g of {{ ingredient.ingredient.name }}
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-xs-6">
                                     <a href="{% url 'recipe:ingredients:update' recipe.id ingredient.id %}">
                                         <button class="btn btn-primary">
                                             Edit
